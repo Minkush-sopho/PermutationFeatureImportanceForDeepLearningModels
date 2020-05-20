@@ -5,19 +5,12 @@ Created on Thu Jan 23 14:11:53 2020
 @author: Minkush Manuja
 """
 import numpy as np
-from tqdm import tqdm
 import copy
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import roc_auc_score
 from sklearn.metrics import log_loss
+
 def scorer(estimator, X, y,scoring=None):
-    """
-        Need to implement this function
-        Return the predicted scoring metric as per "scoring"
-        scoring may take values such as "accuracy" ,"AUC", etc according to which the corresponding
-        value is returned
-        
-    """
     prediction = estimator.predict(X)
     prediction = prediction.argmax(axis=1)
     y = y.argmax(axis=1) #  iff "y" is one-hot 
@@ -118,12 +111,16 @@ def permutation_imp_resnet(estimator, X, y, n_repeats = 5, scoring = None):
         with :term:`scorer`.
     X : ndarray or DataFrame
         Data on which permutation importance will be computed.
+        Shape should be (Windows X TimeStamps X Features)
+
     y : Targets for supervised or `None` for unsupervised.
     
     scoring : string, callable or None, default=None
         Scorer to use. It can be a single
         string (see :ref:`scoring_parameter`) or a callable (see
         :ref:`scoring`). If None, the estimator's default scorer is used.
+        Currently supports only 3 scorings: Accuracy, AUC, Log_loss
+
     n_repeats : int, default=5
         Number of times to permute a feature.
 
