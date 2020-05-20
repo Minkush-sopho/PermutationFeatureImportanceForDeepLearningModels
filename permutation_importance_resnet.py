@@ -2,7 +2,7 @@
 """
 Created on Thu Jan 23 14:11:53 2020
 
-@author: Minkush
+@author: Minkush Manuja
 """
 import numpy as np
 from tqdm import tqdm
@@ -20,9 +20,8 @@ def scorer(estimator, X, y,scoring=None):
     """
     prediction = estimator.predict(X)
     prediction = prediction.argmax(axis=1)
-    y = y.argmax(axis=1) #	iff "y" is one-hot 
-#    print("pred:",prediction)
-#    print("y:",y)
+    y = y.argmax(axis=1) #  iff "y" is one-hot 
+
     if scoring=="accuracy":
         return accuracy_score(y, prediction)
                 
@@ -74,20 +73,12 @@ def dynamics_importance(estimator, X, y, n_repeats, features_list, scoring = Non
         
 def generate_new_X(X, permute_idx, col_idx):
     X_permuted = copy.deepcopy(X)
-    #print(permute_idx)
     for i in range(X.shape[0]):
         for ts in range(X.shape[1]):
             X_permuted[i][ts][col_idx] = X[int(permute_idx[i])][ts][col_idx]
     
     return X_permuted
-    
-def check(x, y):
-    for i in range(x.shape[0]):
-        for j in range(x.shape[1]):
-            for k in range(x.shape[2]):
-                if(x[i][j][k] != y[i][j][k]):
-                    return False
-    return True
+
 
 def calculate_perm_imp(estimator, X, y, col_idx, n_repeats,scoring=None):
     X_permuted = copy.deepcopy(X)
@@ -100,10 +91,7 @@ def calculate_perm_imp(estimator, X, y, col_idx, n_repeats,scoring=None):
     for n_round in tqdm(range(n_repeats)):
         permute_idx = np.random.permutation(permute_idx)
         X_permuted = generate_new_X(X,permute_idx,col_idx)
-#        if(check(X_permuted,X)):
-#            print("NOoo")
-        feature_score = scorer(estimator, X_permuted, y,scoring)
-        
+        feature_score = scorer(estimator, X_permuted, y,scoring)        
         scores[n_round] = feature_score
         
     return scores
@@ -141,12 +129,11 @@ def permutation_imp_resnet(estimator, X, y, n_repeats = 5, scoring = None):
 
     """
     baseline_score = scorer(estimator, X,y,scoring)
-#    print(baseline_score)
+
     scores = []
     
     for col_idx in range(X.shape[2]):
         score = calculate_perm_imp(estimator, X,y,col_idx, n_repeats, scoring)
-#        print("col_idx" , col_idx, "score:",score)
         scores.append(score)
     importances = baseline_score - np.array(scores)
     ret_stats = {}
